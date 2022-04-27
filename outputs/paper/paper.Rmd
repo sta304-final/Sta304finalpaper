@@ -91,89 +91,93 @@ summary(data_clean$UNAVAILABLE_BEDS)
 
 ## Exploratory Data Analysis
 
-```{r Figure1, fig.cap="the proportion of actual bed capacity that is occupied for the reporting date", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure1, fig.cap="the proportion of actual bed capacity that is occupied for the reporting date", echo=FALSE, warning=FALSE, message=FALSE}
 data_clean%>%
   ggplot(aes(x=OCCUPANCY_RATE_BEDS))+
   geom_histogram(color='black',fill='steelblue',xlim=c(0,10),ylim=c(0,10))+
-  labs(title="Histogram of the proportion of actual bed capacity that is occupied")+
+  labs(title="the proportion of actual bed capacity that is occupied")+
   theme_minimal()
 ```
+
 I should conduct the exploratory data analysis in order to build the starting model.  Thus, Figure \@ref(fig:Figure1) is a histogram of the response variable. The graph is extremely right skewed. It will be much better if it is normal distribution. This problem can be fixed later by using model transformation.
 
-```{r Figure2, fig.cap="the number of beds showing as available for occupancy in the Shelter Management Information System", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure2, fig.cap="the number of beds showing as available for occupancy in the Shelter Management Information System", echo=FALSE, warning=FALSE, message=FALSE}
 # Create histograms for some possible predictors.
-hist1 = ggplot(data= data_clean,aes(x=CAPACITY_ACTUAL_BED))+
+data_clean%>%
+  ggplot(aes(x=CAPACITY_ACTUAL_BED))+
   geom_histogram(color='black',fill='steelblue')+
-  labs(title="Number of available beds")
+  labs(title="Number of available beds")+
+  theme_minimal()
 ```
 
-```{r Figure3, fig.cap="the number of beds that a program has been approved to provide", echo=FALSE, warning=FALSE, message=FALSE}
-hist2 = ggplot(data= data_clean,aes(x=CAPACITY_FUNDING_BED))+
+```{r, Figure3, fig.cap="the number of beds that a program has been approved to provide", echo=FALSE, warning=FALSE, message=FALSE}
+data_clean%>%
+  ggplot(aes(x=CAPACITY_FUNDING_BED))+
   geom_histogram(color='black',fill='steelblue')+
-  labs(title="Number of beds provided")
+  labs(title="Number of beds provided")+
+  theme_minimal()
 ```
 
-```{r Figure4, fig.cap="Occupied beds vs. occupied rates", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure4, fig.cap="Occupied beds vs. occupied rates", echo=FALSE, warning=FALSE, message=FALSE}
 # Create scatter plots to analyze the relationship between the response variable and other possible predictors.
-sca1 = ggplot(data=data_clean, aes(x=OCCUPIED_BEDS,y=OCCUPANCY_RATE_BEDS)) + 
+data_clean%>%
+  ggplot(aes(x=OCCUPIED_BEDS,y=OCCUPANCY_RATE_BEDS)) + 
   geom_point() + geom_smooth(method=lm, se=FALSE) + labs(x="Occuppied beds",
                                                          y="Occupancy rates",
-                                                         title="Occupied beds and occupied rates")
+                                                         title="Occupied beds and occupied rates")+
+  theme_minimal()
 ```
 
-```{r Figure5, fig.cap="Unoccupied beds vs. occupied rates", echo=FALSE, warning=FALSE, message=FALSE}
-sca2 = ggplot(data=data_clean, aes(x=UNOCCUPIED_BEDS,y=OCCUPANCY_RATE_BEDS)) + 
+```{r, Figure5, fig.cap="Unoccupied beds vs. occupied rates", echo=FALSE, warning=FALSE, message=FALSE}
+data_clean%>%
+  ggplot(aes(x=UNOCCUPIED_BEDS,y=OCCUPANCY_RATE_BEDS)) + 
   geom_point() + geom_smooth(method=lm, se=FALSE) + labs(x="Unoccuppied beds",
                                                          y="Occupancy rates",
-                                                         title="Unoccupied beds and occupied rates")
+                                                         title="Unoccupied beds and occupied rates")+
+  theme_minimal()
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-(hist1|hist2)/
-  (sca1|sca2)
-```
-From Figure \@ref(fig:Figure2), \@ref(fig:Figure3), \@ref(fig:Figure4), and \@ref(fig:Figure5), I infer that variables “CAPACITY_ACTUAL_BED", "CAPACITY_FUNDING_BED", "OCCUPIED_BEDS" and "UNOCCUPIED_BEDS" could have influence on the response variable. Therefore, I include them in the starting model.
-
+From Figure \@ref(fig:Figure2), Figure \@ref(fig:Figure3), Figure \@ref(fig:Figure4), and Figure \@ref(fig:Figure5), I infer that variables “CAPACITY_ACTUAL_BED", "CAPACITY_FUNDING_BED", "OCCUPIED_BEDS" and "UNOCCUPIED_BEDS" could have influence on the response variable. Therefore, I include them in the starting model.
+    
 Then, I create bar plots for some categorical variables
-```{r Figure6, fig.cap="Name of the organization providing the overnight service", echo=FALSE, warning=FALSE, message=FALSE}
-bar1 = ggplot(data=data_clean,aes(x=ORGANIZATION_NAME))+geom_bar()+
-  labs(title="Bar plots of organizations' names") 
+
+```{r, Figure6, fig.cap="Name of the organization providing the overnight service", echo=FALSE, warning=FALSE, message=FALSE}
+data_clean%>%
+  ggplot(aes(x=ORGANIZATION_NAME))+geom_bar()+
+  labs(title="organizations' names") +
+  theme_minimal()
 # Do not need to include variable ORGANIZATION_NAME.
 ```
 
-```{r Figure7, fig.cap="The name of the location of the program", echo=FALSE, warning=FALSE, message=FALSE}
-bar2 = ggplot(data=data_clean,aes(x=LOCATION_CITY))+geom_bar()+
-  labs(title="Bar plots of the city of the location") 
+```{r, Figure7, fig.cap="The name of the location of the program", echo=FALSE, warning=FALSE, message=FALSE}
+data_clean%>%
+  ggplot(aes(x=LOCATION_CITY))+geom_bar()+
+  labs(title="the city of the location") +
+  theme_minimal()
 # Do not need to include variable LOCATION_CITY.
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-(bar1)/
-  (bar2)
-```
 Figure \@ref(fig:Figure6) and Figure \@ref(fig:Figure7) show that the data volume is unbalanced. Thus, the credibility is weak and we do not need to include them. 
 
-```{r Figure8, fig.cap="whether the program is part of the base shelter and overnight services system, or is part of a temporary response program", echo=FALSE, warning=FALSE, message=FALSE}
-bar3 = ggplot(data=data_clean,aes(x=PROGRAM_AREA))+geom_bar()+
-  labs(title="Figure Bar plots of the program area") 
-# include variable ORGANIZATION_NAME.
+```{r, Figure8, fig.cap="whether the program is part of the base shelter and overnight services system, or is part of a temporary response program", echo=FALSE, warning=FALSE, message=FALSE}
+data_clean%>%ggplot(aes(x=PROGRAM_AREA))+geom_bar()+
+  labs(title="plots of the program area") +
+  theme_minimal()
 ```
 
-```{r Figure9, fig.cap="the type of overnight service being provided", echo=FALSE, warning=FALSE, message=FALSE}
-bar4 = ggplot(data=data_clean,aes(x=OVERNIGHT_SERVICE_TYPE))+geom_bar()+
-  labs(title="Bar plots of the type of overnight service being provided") 
-# Do not need to include variable ORGANIZATION_NAME.
+```{r, Figure9, fig.cap="the type of overnight service being provided", echo=FALSE, warning=FALSE, message=FALSE}
+data_clean%>%
+  ggplot(aes(x=OVERNIGHT_SERVICE_TYPE))+geom_bar()+
+  labs(title="the type of overnight service being provided") +
+  theme_minimal()
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-(bar3)/
-  (bar4)
-```
 From the website, PROGRAM_AREA displays whether the program is part of the base shelter and overnight services system, or is part of a temporary response program [@citeData]. Figure \@ref(fig:Figure8) illustrates that most programs are in the type of Base Shelter and Overnight Services System. These programs are intended to be regular, year-round, and permanent [@citeData]. Also, the variable OVERNIGHT_SERVICE_TYPE shows the type of overnight service provided [@citeData]. This includes Shelter, 24-Hour Respite, Motel/Hotel, Interim Housing, Warming Center, 24-Hour Woman's Drop-in, Isolation/Recovery Site [@citeData]. From Figure \@ref(fig:Figure9), it shows that shelters are the most type of overnight services provided in this system. 
-
+  
 # Model
 
 The second step is to create my starting model by using common sense and results of EDA. Also, predictors can’t have overlapping information. 
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 start_model = lm(OCCUPANCY_RATE_BEDS ~ LOCATION_CITY + SECTOR + PROGRAM_MODEL + 
                    OVERNIGHT_SERVICE_TYPE + PROGRAM_AREA + CAPACITY_ACTUAL_BED +
@@ -183,32 +187,37 @@ summary(start_model)
 ```
 
 Here are the two conditions we need to check before assessing the model assumptions. I want to make sure that we can use residual plots to analyze the model.
-```{r Figure10, fig.cap="Condition 1: draw a scatter plot between yi and y_hat", echo=FALSE, warning=FALSE, message=FALSE}
+
+```{r, Figure10, fig.cap="Condition 1: draw a scatter plot between yi and y_hat", echo=FALSE, warning=FALSE, message=FALSE}
 
 y_hat <- fitted(start_model)
 yi <- data_clean$OCCUPANCY_RATE_BEDS
 plot(yi[0:length(y_hat)], y_hat)
 ```
 
-```{r Figure11, fig.cap="Condition 2: draw scatter plots between numerical predictors", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure11, fig.cap="Condition 2: draw scatter plots between numerical predictors", echo=FALSE, warning=FALSE, message=FALSE}
 
 pairs(~CAPACITY_ACTUAL_BED +CAPACITY_FUNDING_BED + OCCUPIED_BEDS + 
         UNOCCUPIED_BEDS + UNAVAILABLE_BEDS + OCCUPANCY_RATE_BEDS, 
       data=data_clean)
 ```
-Now, I check the two conditions, which are Figure \@ref(fig:Figure10) and Figure \@ref(fig:Figure11). I draw a scatter-plot between Yi and Y_hat to check condition 1. It shows that there is a strong pattern between them. Thus, Condition 1 is satisfied. Next, we draw scatter plots between numerical predictors. This graph displays that there is no or linear relationship between these predictors. Therefore, Condition 2 is satisfied.
 
+Now, I check the two conditions, which are Figure \@ref(fig:Figure10) and Figure \@ref(fig:Figure11). I draw a scatter-plot between Yi and Y_hat to check condition 1. It shows that there is a strong pattern between them. Thus, Condition 1 is satisfied. Next, we draw scatter plots between numerical predictors. This graph displays that there is no or linear relationship between these predictors. Therefore, Condition 2 is satisfied.
+ 
 After that, I use plots to identify potential violations against model assumptions, which are linearity, normality, constant variance, and uncorrelatedness. Figure \@ref(fig:Figure12) is Residual vs. Fitted.
-```{r Figure12, fig.cap="Residual vs. Fitted.", echo=FALSE, warning=FALSE,message=FALSE}
+ 
+```{r, Figure12, fig.cap="Residual vs. Fitted.", echo=FALSE, warning=FALSE,message=FALSE}
 # Residual vs Fitted
 res<-rstandard(start_model)
 y_hat<-fitted(start_model)
 plot(y_hat, res)
 ```
+
 In this graph, the linearity holds, but the independence and constant variance can be improved.
 
 Figure \@ref(fig:Figure13) is Residual vs. Predictors.
-```{r Figure13, fig.cap="Residual vs. Predictors.", echo=FALSE, warning=FALSE, message=FALSE}
+
+```{r, Figure13, fig.cap="Residual vs. Predictors.", echo=FALSE, warning=FALSE, message=FALSE}
 # Residual Plot
 # Residual vs. Predictors
 par(mfrow = c(3, 2))
@@ -220,14 +229,17 @@ plot(data_clean$UNAVAILABLE_BEDS[0:length(res)], res)
 ```
 
 Figure \@ref(fig:Figure14) is Normal Quantile-Quantile (QQ) plots. 
-```{r Figure14, fig.cap="Normal Quantile-Quantile (QQ) plots.", echo=FALSE, warning=FALSE, message=FALSE}
+
+```{r, Figure14, fig.cap="Normal Quantile-Quantile (QQ) plots.", echo=FALSE, warning=FALSE, message=FALSE}
 # Residual QQ plot
 qqnorm(res)
 qqline(res)
 ```
+
 To summarize, the linearity should hold. However, the constant variance, independence and normality may be violated and can be improved by using model transformations. There is a severe deviation in the Normal QQ plot.
 
 The next step is to explore model transformations to correct assumption violations. Since the power transform fails to work if any variable contains 0, one way to fix this problem is to add 0.0000001 to this variable. After that, I apply box-cox transformation for numerical variables.
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_clean <- data_clean %>%
   mutate(CAPACITY_ACTUAL_BED = CAPACITY_ACTUAL_BED+0.0000001,
@@ -244,6 +256,7 @@ summary(powerTransform(cbind(data_clean$CAPACITY_ACTUAL_BED,
 ```
 
 Then, I create the transformed variables.
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 T_data_clean <- data_clean %>%
   mutate( T_CAPACITY_ACTUAL_BED=CAPACITY_ACTUAL_BED^(0.46),
@@ -254,6 +267,7 @@ T_data_clean <- data_clean %>%
 ```
 
 The next step is to fit a new model with transformed variables.
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 # Fit a new model with transformed variables
 T_start_model <- lm(OCCUPANCY_RATE_BEDS ~ LOCATION_CITY + SECTOR + PROGRAM_MODEL + OVERNIGHT_SERVICE_TYPE + PROGRAM_AREA + T_CAPACITY_ACTUAL_BED + T_CAPACITY_FUNDING_BED + T_OCCUPIED_BEDS + T_UNOCCUPIED_BEDS + T_UNAVAILABLE_BEDS, data=T_data_clean)
@@ -261,6 +275,7 @@ summary(T_start_model)
 ```
 
 Now, i begin to reduce our model. Specifically, I apply automated selection because I want to know which one can be removed.
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 #Candidate model 1: automated selection
 Auto_reduced_model <- step(T_start_model, direction= "both")
@@ -275,21 +290,22 @@ The P value here is 0.5843, which is large. This means that the auto reduced mod
 
 # Results
 
-```{r Figure15, fig.cap="Condition 1: draw a scatter plot between yi and y_hat.", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure15, fig.cap="Condition 1: draw a scatter plot between yi and y_hat.", echo=FALSE, warning=FALSE, message=FALSE}
  
 y_hat <- fitted(Auto_reduced_model)
 yi <- T_data_clean$OCCUPANCY_RATE_BEDS
 plot(yi[0:length(y_hat)],y_hat)
 ```
 
-```{r Figure16, fig.cap="Condition 2: draw scatter plots between numerical predictors", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure16, fig.cap="Condition 2: draw scatter plots between numerical predictors", echo=FALSE, warning=FALSE, message=FALSE}
 
 pairs(~ T_CAPACITY_ACTUAL_BED + T_CAPACITY_FUNDING_BED + 
     T_OCCUPIED_BEDS + T_UNOCCUPIED_BEDS + T_UNAVAILABLE_BEDS, data = T_data_clean)
 ```
+
 Same as before, Figure \@ref(fig:Figure15) and Figure \@ref(fig:Figure16) display that both Condition 1 and 2 are held in the reduced model. 
 
-```{r Figure17, fig.cap="Residual vs. Predictors", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure17, fig.cap="Residual vs. Predictors", echo=FALSE, warning=FALSE, message=FALSE}
 par(mfrow = c(3, 2))
 plot(T_data_clean$T_CAPACITY_ACTUAL_BED[0:length(res)], res)
 plot(T_data_clean$T_CAPACITY_FUNDING_BED[0:length(res)], res)
@@ -299,13 +315,14 @@ plot(T_data_clean$T_UNAVAILABLE_BEDS[0:length(res)], res)
 
 ```
 
-```{r Figure18, fig.cap="Residual QQ Plot", echo=FALSE, warning=FALSE, message=FALSE}
+```{r, Figure18, fig.cap="Residual QQ Plot", echo=FALSE, warning=FALSE, message=FALSE}
 # Residual QQ Plot
 qqnorm(res)
 qqline(res)
 ```
-From Figure \@ref(fig:Figure17) and Figure \@ref(fig:Figure18), the linearity and the constant variance should hold. However, the independence and normality may be violated. 
 
+From Figure \@ref(fig:Figure17) and Figure \@ref(fig:Figure18), the linearity and the constant variance should hold. However, the independence and normality may be violated. 
+ 
 The distribution of my response variable is right skewed, which may cause problems. Moreover, it is observed that there is a positive relationship between the number of rooms showing as occupied and the proportion of actual bed capacity that is occupied for the reporting date. It also displays that the number of rooms that are showing as available for occupancy that are not occupied as of the occupancy date has a negative relationship with the proportion of actual bed capacity that is occupied. There is a strong pattern between yi and y_hat, and there is no/linear relationship between predictors, so the two conditions hold. According to the following graphs, the linearity holds. Regarding to independence, there appear to be some evidence of grouping in residual plots. Constant variance is difficult to tell since some residuals vs. predictors plots contain points that are far away. For normality, there is lifting in the tails. After fitting a new model with transformed variables, we apply automated selection to determine which variables can be removed. To be specific, predictor removed is PROGRAM_MODEL".
 
 The results means LOCATION_CITY, SECTOR, OVERNIGHT_SERVICE_TYPE, PROGRAM_AREA, T_CAPACITY_ACTUAL_BED, T_CAPACITY_FUNDING_BED, T_OCCUPIED_BEDS, T_UNOCCUPIED_BEDS, T_UNAVAILABLE_BEDS are important predictors. The Auto reduced model has ANOVA p-value of 0.5843. This means the auto reduced model is better. For both Auto_reduced_model, the linearity holds. There appear to be some evidence of grouping. The constant variance can be improved. There is lifting in the tails. 
